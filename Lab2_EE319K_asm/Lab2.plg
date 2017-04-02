@@ -1,0 +1,15 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\ramesh\Dropbox\School\EE319K\Volume1\LabSolutions\Lab2_EE319K\Lab2.uvproj
+Project File Date:  02/10/2014
+
+<h2>Output:</h2>
+Rebuild target 'Lab2'
+assembling Startup.s...
+assembling main.s...
+linking...
+Program Size: Code=648 RO-data=0 RW-data=0 ZI-data=1024  
+".\Lab2.axf" - 0 Errors, 0 Warning(s).

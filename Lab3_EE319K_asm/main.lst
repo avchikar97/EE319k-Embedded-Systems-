@@ -1,0 +1,320 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;****************** main.s ***************
+    2 00000000         ; Program written by: ***Your Names**update this***
+    3 00000000         ; Date Created: 1/22/2016 
+    4 00000000         ; Last Modified: 1/22/2016 
+    5 00000000         ; Section ***Tuesday 1-2***update this***
+    6 00000000         ; Instructor: ***Ramesh Yerraballi**update this***
+    7 00000000         ; Lab number: 3
+    8 00000000         ; Brief description of the program
+    9 00000000         ;   If the switch is presses, the LED toggles at 8 Hz
+   10 00000000         ; Hardware connections
+   11 00000000         ;  PE1 is switch input  (1 means pressed, 0 means not pr
+                       essed)
+   12 00000000         ;  PE0 is LED output (1 activates external LED on protob
+                       oard) 
+   13 00000000         ;Overall functionality of this system is the similar to 
+                       Lab 2, with six changes:
+   14 00000000         ;1-  the pin to which we connect the switch is moved to 
+                       PE1, 
+   15 00000000         ;2-  you will have to remove the PUR initialization beca
+                       use pull up is no longer needed. 
+   16 00000000         ;3-  the pin to which we connect the LED is moved to PE0
+                       , 
+   17 00000000         ;4-  the switch is changed from negative to positive log
+                       ic, and 
+   18 00000000         ;5-  you should increase the delay so it flashes about 8
+                        Hz.
+   19 00000000         ;6-  the LED should be on when the switch is not pressed
+                       
+   20 00000000         ; Operation
+   21 00000000         ;   1) Make PE0 an output and make PE1 an input. 
+   22 00000000         ;   2) The system starts with the LED on (make PE0 =1). 
+                       
+   23 00000000         ;   3) Wait about 62 ms
+   24 00000000         ;   4) If the switch is pressed (PE1 is 1), then toggle 
+                       the LED once, else turn the LED on (0). 
+   25 00000000         ;   5) Steps 3 and 4 are repeated over and over
+   26 00000000         
+   27 00000000         
+   28 00000000 400243FC 
+                       GPIO_PORTE_DATA_R
+                               EQU              0x400243FC
+   29 00000000 40024400 
+                       GPIO_PORTE_DIR_R
+                               EQU              0x40024400
+   30 00000000 40024420 
+                       GPIO_PORTE_AFSEL_R
+                               EQU              0x40024420
+   31 00000000 4002451C 
+                       GPIO_PORTE_DEN_R
+                               EQU              0x4002451C
+   32 00000000 40024528 
+                       GPIO_PORTE_AMSEL_R
+                               EQU              0x40024528
+   33 00000000 4002452C 
+                       GPIO_PORTE_PCTL_R
+                               EQU              0x4002452C
+   34 00000000 400FE608 
+                       SYSCTL_RCGCGPIO_R
+                               EQU              0x400FE608
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   35 00000000                 IMPORT           TExaS_Init
+   36 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   37 00000000                 THUMB
+   38 00000000                 EXPORT           Start
+   39 00000000         Start
+   40 00000000         ; TExaS_Init sets bus clock at 80 MHz
+   41 00000000 F7FF FFFE       BL               TExaS_Init  ; voltmeter, scope 
+                                                            on PD3
+   42 00000004 481E            LDR              R0,=SYSCTL_RCGCGPIO_R
+   43 00000006 6801            LDR              R1, [R0]
+   44 00000008 F041 0110       ORR              R1, #0x10   ;enable clock for P
+                                                            ort E (0001 0000)
+   45 0000000C 6001            STR              R1, [R0]
+   46 0000000E BF00            NOP                          ;stabilize clock
+   47 00000010 BF00            NOP
+   48 00000012         
+   49 00000012 481C            LDR              R0,=GPIO_PORTE_DEN_R
+   50 00000014 6801            LDR              R1, [R0]
+   51 00000016 F041 0103       ORR              R1, #0x03   ;enable digital I/O
+                                                             for PF3, PF4
+   52 0000001A 6001            STR              R1, [R0]
+   53 0000001C         
+   54 0000001C 481A            LDR              R0,=GPIO_PORTE_DIR_R
+   55 0000001E 6801            LDR              R1, [R0]
+   56 00000020 F041 0101       ORR              R1, #0x01   ;PE0=output (1)
+   57 00000024 F021 0102       BIC              R1, #0x02   ;PE1=input (0)
+   58 00000028 6001            STR              R1, [R0]
+   59 0000002A         
+   60 0000002A 4818            LDR              R0,=GPIO_PORTE_AFSEL_R
+   61 0000002C 6801            LDR              R1, [R0]
+   62 0000002E F021 0103       BIC              R1, #0x03   ;no alternate funct
+                                                            ion for PF3,4
+   63 00000032 6001            STR              R1, [R0]
+   64 00000034         
+   65 00000034 4816            LDR              R0,=GPIO_PORTE_DATA_R
+   66 00000036 6801            LDR              R1, [R0]
+   67 00000038 F041 0101       ORR              R1, #0x01   ;LED initially on
+   68 0000003C 6001            STR              R1, [R0]
+   69 0000003E         
+   70 0000003E B662            CPSIE            I           ; TExaS voltmeter, 
+                                                            scope runs on inter
+                                                            rupts
+   71 00000040         
+   72 00000040         loop
+   73 00000040 F000 F816       BL               DELAY
+   74 00000044         
+   75 00000044 4812            LDR              R0,=GPIO_PORTE_DATA_R
+   76 00000046 6801            LDR              R1, [R0]    ;read the switch (R
+                                                            1 = adjusting PE0)
+   77 00000048 460A            MOV              R2, R1      ;R2 = checking PE1
+   78 0000004A 460B            MOV              R3, R1      ;R3 = original data
+                                                            
+   79 0000004C F002 0202       AND              R2, #0x02   ;clear all but PE1
+   80 00000050 3A02            SUBS             R2, #0x02
+   81 00000052         
+   82 00000052 D109            BNE              SETON       ;if PE1 = 0, turn o
+                                                            n LED
+   83 00000054 F001 0101       AND              R1, #0x01   ;clear all but PE0
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   84 00000058 F081 0101       EOR              R1, #0x01   ;toggle PE0
+   85 0000005C F023 0301       BIC              R3, #0x01   ;clear original PE0
+                                                            
+   86 00000060 EA41 0303       ORR              R3, R1, R3  ;recombine
+   87 00000064 6003            STR              R3, [R0]
+   88 00000066 E7EB            B                loop
+   89 00000068         
+   90 00000068         SETON
+   91 00000068 F043 0301       ORR              R3, #0x01
+   92 0000006C 6003            STR              R3, [R0]
+   93 0000006E E7E7            B                loop
+   94 00000070         
+   95 00000070         DELAY
+   96 00000070 4808            LDR              R0,=COUNT   ;start of delay sub
+                                                            routine (62 ms)
+   97 00000072 6801            LDR              R1, [R0]
+   98 00000074         REPEAT
+   99 00000074 1E49            SUBS             R1, R1, #1
+  100 00000076 D1FD            BNE              REPEAT
+  101 00000078 4770            BX               LR
+  102 0000007A         
+  103 0000007A 00 00 00130000 
+                       COUNT   DCD              0x130000
+  104 00000080         
+  105 00000080         
+  106 00000080         
+  107 00000080         
+  108 00000080                 ALIGN                        ; make sure the end
+                                                             of this section is
+                                                             aligned
+  109 00000080                 END                          ; end of file
+              400FE608 
+              4002451C 
+              40024400 
+              40024420 
+              400243FC 
+              00000000 
+Command Line: --debug --xref --cpu=Cortex-M4 --apcs=interwork --depend=.\main.d
+ -o.\main.o -IC:\Keil\ARM\RV31\INC -IC:\Keil\ARM\CMSIS\Include -IC:\Keil\ARM\In
+c\Luminary --predefine="__EVAL SETA 1" --list=.\main.lst main.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 36 in file main.s
+   Uses
+      None
+Comment: .text unused
+COUNT 0000007C
+
+Symbol: COUNT
+   Definitions
+      At line 103 in file main.s
+   Uses
+      At line 96 in file main.s
+Comment: COUNT used once
+DELAY 00000070
+
+Symbol: DELAY
+   Definitions
+      At line 95 in file main.s
+   Uses
+      At line 73 in file main.s
+Comment: DELAY used once
+REPEAT 00000074
+
+Symbol: REPEAT
+   Definitions
+      At line 98 in file main.s
+   Uses
+      At line 100 in file main.s
+Comment: REPEAT used once
+SETON 00000068
+
+Symbol: SETON
+   Definitions
+      At line 90 in file main.s
+   Uses
+      At line 82 in file main.s
+Comment: SETON used once
+Start 00000000
+
+Symbol: Start
+   Definitions
+      At line 39 in file main.s
+   Uses
+      At line 38 in file main.s
+Comment: Start used once
+loop 00000040
+
+Symbol: loop
+   Definitions
+      At line 72 in file main.s
+   Uses
+      At line 88 in file main.s
+      At line 93 in file main.s
+
+7 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+GPIO_PORTE_AFSEL_R 40024420
+
+Symbol: GPIO_PORTE_AFSEL_R
+   Definitions
+      At line 30 in file main.s
+   Uses
+      At line 60 in file main.s
+Comment: GPIO_PORTE_AFSEL_R used once
+GPIO_PORTE_AMSEL_R 40024528
+
+Symbol: GPIO_PORTE_AMSEL_R
+   Definitions
+      At line 32 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTE_AMSEL_R unused
+GPIO_PORTE_DATA_R 400243FC
+
+Symbol: GPIO_PORTE_DATA_R
+   Definitions
+      At line 28 in file main.s
+   Uses
+      At line 65 in file main.s
+      At line 75 in file main.s
+
+GPIO_PORTE_DEN_R 4002451C
+
+Symbol: GPIO_PORTE_DEN_R
+   Definitions
+      At line 31 in file main.s
+   Uses
+      At line 49 in file main.s
+Comment: GPIO_PORTE_DEN_R used once
+GPIO_PORTE_DIR_R 40024400
+
+Symbol: GPIO_PORTE_DIR_R
+   Definitions
+      At line 29 in file main.s
+   Uses
+      At line 54 in file main.s
+Comment: GPIO_PORTE_DIR_R used once
+GPIO_PORTE_PCTL_R 4002452C
+
+Symbol: GPIO_PORTE_PCTL_R
+   Definitions
+      At line 33 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTE_PCTL_R unused
+SYSCTL_RCGCGPIO_R 400FE608
+
+Symbol: SYSCTL_RCGCGPIO_R
+   Definitions
+      At line 34 in file main.s
+   Uses
+      At line 42 in file main.s
+Comment: SYSCTL_RCGCGPIO_R used once
+7 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+TExaS_Init 00000000
+
+Symbol: TExaS_Init
+   Definitions
+      At line 35 in file main.s
+   Uses
+      At line 41 in file main.s
+Comment: TExaS_Init used once
+1 symbol
+348 symbols in table

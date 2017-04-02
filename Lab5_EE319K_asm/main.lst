@@ -1,0 +1,431 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;****************** main.s ***************
+    2 00000000         ; Program written by: Akaash Chikarmane
+    3 00000000         ; Date Created: 8/25/2013 
+    4 00000000         ; Last Modified: 3/22/2015 
+    5 00000000         ; Section 1-2pm     TA: Youngchun Kim
+    6 00000000         ; Lab number: 5
+    7 00000000         ; Brief description of the program
+    8 00000000         ;   A traffic light controller with 3 inputs and 8 outpu
+                       t
+    9 00000000         ; Hardware connections
+   10 00000000         ;The “don’t walk” and “walk” lights must be PF1 and PF3 
+                       respectively, but where to attach the others have some f
+                       lexibility. 
+   11 00000000         ;Obviously, you will not connect both inputs and outputs
+                        to the same pin.
+   12 00000000         
+   13 00000000         ;Red south       PE5
+   14 00000000         ;Yellow south    PE4
+   15 00000000         ;Green south     PE3
+   16 00000000         ;Red west        PE2
+   17 00000000         ;Yellow west     PE1
+   18 00000000         ;Green west      PE0
+   19 00000000         ;Table 5.1. Possible ports to interface the traffic ligh
+                       ts (PF1=red don’t walk, PF3=green walk).
+   20 00000000         
+   21 00000000         ;Walk sensor     PB2
+   22 00000000         ;South sensor    PB1
+   23 00000000         ;West sensor     PB0
+   24 00000000         ;Table 5.2. Possible ports to interface the sensors.
+   25 00000000         
+   26 00000000 400FE608 
+                       SYSCTL_RCGCGPIO_R
+                               EQU              0x400FE608
+   27 00000000 400043FC 
+                       GPIO_PORTA_DATA_R
+                               EQU              0x400043FC
+   28 00000000 40004400 
+                       GPIO_PORTA_DIR_R
+                               EQU              0x40004400
+   29 00000000 40004420 
+                       GPIO_PORTA_AFSEL_R
+                               EQU              0x40004420
+   30 00000000 4000451C 
+                       GPIO_PORTA_DEN_R
+                               EQU              0x4000451C
+   31 00000000 400053FC 
+                       GPIO_PORTB_DATA_R
+                               EQU              0x400053FC
+   32 00000000 40005400 
+                       GPIO_PORTB_DIR_R
+                               EQU              0x40005400
+   33 00000000 40005420 
+                       GPIO_PORTB_AFSEL_R
+                               EQU              0x40005420
+   34 00000000 4000551C 
+                       GPIO_PORTB_DEN_R
+                               EQU              0x4000551C
+   35 00000000 400073FC 
+                       GPIO_PORTD_DATA_R
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                               EQU              0x400073FC
+   36 00000000 40007400 
+                       GPIO_PORTD_DIR_R
+                               EQU              0x40007400
+   37 00000000 40007420 
+                       GPIO_PORTD_AFSEL_R
+                               EQU              0x40007420
+   38 00000000 4000751C 
+                       GPIO_PORTD_DEN_R
+                               EQU              0x4000751C
+   39 00000000 400243FC 
+                       GPIO_PORTE_DATA_R
+                               EQU              0x400243FC
+   40 00000000 40024400 
+                       GPIO_PORTE_DIR_R
+                               EQU              0x40024400
+   41 00000000 40024420 
+                       GPIO_PORTE_AFSEL_R
+                               EQU              0x40024420
+   42 00000000 4002451C 
+                       GPIO_PORTE_DEN_R
+                               EQU              0x4002451C
+   43 00000000 400253FC 
+                       GPIO_PORTF_DATA_R
+                               EQU              0x400253FC
+   44 00000000 40025400 
+                       GPIO_PORTF_DIR_R
+                               EQU              0x40025400
+   45 00000000 40025420 
+                       GPIO_PORTF_AFSEL_R
+                               EQU              0x40025420
+   46 00000000 4002551C 
+                       GPIO_PORTF_DEN_R
+                               EQU              0x4002551C
+   47 00000000 E000E018 
+                       NVIC_ST_CURRENT_R
+                               EQU              0xE000E018
+   48 00000000 E000E010 
+                       NVIC_ST_CTRL_R
+                               EQU              0xE000E010
+   49 00000000 E000E014 
+                       NVIC_ST_RELOAD_R
+                               EQU              0xE000E014
+   50 00000000         
+   51 00000000         
+   52 00000000                 AREA             DATA, ALIGN=2
+   53 00000000         
+   54 00000000         
+   55 00000000                 ALIGN
+   56 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   57 00000000                 THUMB
+   58 00000000                 EXPORT           Start
+   59 00000000                 IMPORT           PLL_Init
+   60 00000000         
+   61 00000000         Start
+   62 00000000         ; the DCM.DLL -pCM4 -dLaunchPadDLL debugger setting does
+                        NOT grade or simulate traffic
+   63 00000000         ; the DCM.DLL -pCM4 -dEE319KLab5 debugger setting DOES n
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+                       ot test all specifications for EE319K
+   64 00000000 F7FF FFFE       BL               PLL_Init    ; running at 80 MHz
+                                                            
+   65 00000004         
+   66 00000004         loop
+   67 00000004 E7FE            B                loop
+   68 00000006         
+   69 00000006         
+   70 00000006         
+   71 00000006 00 00           ALIGN                        ; make sure the end
+                                                             of this section is
+                                                             aligned
+   72 00000008                 END                          ; end of file
+Command Line: --debug --xref --cpu=Cortex-M4 --apcs=interwork --depend=.\main.d
+ -o.\main.o -IC:\Keil\ARM\RV31\INC -IC:\Keil\ARM\CMSIS\Include -IC:\Keil\ARM\In
+c\Luminary --predefine="__EVAL SETA 1" --list=.\main.lst main.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 52 in file main.s
+   Uses
+      None
+Comment: DATA unused
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 56 in file main.s
+   Uses
+      None
+Comment: .text unused
+Start 00000000
+
+Symbol: Start
+   Definitions
+      At line 61 in file main.s
+   Uses
+      At line 58 in file main.s
+Comment: Start used once
+loop 00000004
+
+Symbol: loop
+   Definitions
+      At line 66 in file main.s
+   Uses
+      At line 67 in file main.s
+Comment: loop used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+GPIO_PORTA_AFSEL_R 40004420
+
+Symbol: GPIO_PORTA_AFSEL_R
+   Definitions
+      At line 29 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTA_AFSEL_R unused
+GPIO_PORTA_DATA_R 400043FC
+
+Symbol: GPIO_PORTA_DATA_R
+   Definitions
+      At line 27 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTA_DATA_R unused
+GPIO_PORTA_DEN_R 4000451C
+
+Symbol: GPIO_PORTA_DEN_R
+   Definitions
+      At line 30 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTA_DEN_R unused
+GPIO_PORTA_DIR_R 40004400
+
+Symbol: GPIO_PORTA_DIR_R
+   Definitions
+      At line 28 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTA_DIR_R unused
+GPIO_PORTB_AFSEL_R 40005420
+
+Symbol: GPIO_PORTB_AFSEL_R
+   Definitions
+      At line 33 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTB_AFSEL_R unused
+GPIO_PORTB_DATA_R 400053FC
+
+Symbol: GPIO_PORTB_DATA_R
+   Definitions
+      At line 31 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTB_DATA_R unused
+GPIO_PORTB_DEN_R 4000551C
+
+Symbol: GPIO_PORTB_DEN_R
+   Definitions
+      At line 34 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTB_DEN_R unused
+GPIO_PORTB_DIR_R 40005400
+
+Symbol: GPIO_PORTB_DIR_R
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Absolute symbols
+
+   Definitions
+      At line 32 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTB_DIR_R unused
+GPIO_PORTD_AFSEL_R 40007420
+
+Symbol: GPIO_PORTD_AFSEL_R
+   Definitions
+      At line 37 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTD_AFSEL_R unused
+GPIO_PORTD_DATA_R 400073FC
+
+Symbol: GPIO_PORTD_DATA_R
+   Definitions
+      At line 35 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTD_DATA_R unused
+GPIO_PORTD_DEN_R 4000751C
+
+Symbol: GPIO_PORTD_DEN_R
+   Definitions
+      At line 38 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTD_DEN_R unused
+GPIO_PORTD_DIR_R 40007400
+
+Symbol: GPIO_PORTD_DIR_R
+   Definitions
+      At line 36 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTD_DIR_R unused
+GPIO_PORTE_AFSEL_R 40024420
+
+Symbol: GPIO_PORTE_AFSEL_R
+   Definitions
+      At line 41 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTE_AFSEL_R unused
+GPIO_PORTE_DATA_R 400243FC
+
+Symbol: GPIO_PORTE_DATA_R
+   Definitions
+      At line 39 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTE_DATA_R unused
+GPIO_PORTE_DEN_R 4002451C
+
+Symbol: GPIO_PORTE_DEN_R
+   Definitions
+      At line 42 in file main.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Absolute symbols
+
+      None
+Comment: GPIO_PORTE_DEN_R unused
+GPIO_PORTE_DIR_R 40024400
+
+Symbol: GPIO_PORTE_DIR_R
+   Definitions
+      At line 40 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTE_DIR_R unused
+GPIO_PORTF_AFSEL_R 40025420
+
+Symbol: GPIO_PORTF_AFSEL_R
+   Definitions
+      At line 45 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTF_AFSEL_R unused
+GPIO_PORTF_DATA_R 400253FC
+
+Symbol: GPIO_PORTF_DATA_R
+   Definitions
+      At line 43 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTF_DATA_R unused
+GPIO_PORTF_DEN_R 4002551C
+
+Symbol: GPIO_PORTF_DEN_R
+   Definitions
+      At line 46 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTF_DEN_R unused
+GPIO_PORTF_DIR_R 40025400
+
+Symbol: GPIO_PORTF_DIR_R
+   Definitions
+      At line 44 in file main.s
+   Uses
+      None
+Comment: GPIO_PORTF_DIR_R unused
+NVIC_ST_CTRL_R E000E010
+
+Symbol: NVIC_ST_CTRL_R
+   Definitions
+      At line 48 in file main.s
+   Uses
+      None
+Comment: NVIC_ST_CTRL_R unused
+NVIC_ST_CURRENT_R E000E018
+
+Symbol: NVIC_ST_CURRENT_R
+   Definitions
+      At line 47 in file main.s
+   Uses
+      None
+Comment: NVIC_ST_CURRENT_R unused
+NVIC_ST_RELOAD_R E000E014
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Absolute symbols
+
+
+Symbol: NVIC_ST_RELOAD_R
+   Definitions
+      At line 49 in file main.s
+   Uses
+      None
+Comment: NVIC_ST_RELOAD_R unused
+SYSCTL_RCGCGPIO_R 400FE608
+
+Symbol: SYSCTL_RCGCGPIO_R
+   Definitions
+      At line 26 in file main.s
+   Uses
+      None
+Comment: SYSCTL_RCGCGPIO_R unused
+24 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+PLL_Init 00000000
+
+Symbol: PLL_Init
+   Definitions
+      At line 59 in file main.s
+   Uses
+      At line 64 in file main.s
+Comment: PLL_Init used once
+1 symbol
+360 symbols in table
